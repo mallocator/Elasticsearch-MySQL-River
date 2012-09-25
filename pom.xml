@@ -14,7 +14,6 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<elasticsearch.version>0.19.8</elasticsearch.version>
 		<mysql.version>5.1.18</mysql.version>
-		<logback.version>0.9.29</logback.version>
 
 		<mavenAssemblyPlugin>2.2</mavenAssemblyPlugin>
 		<mavenJarPluginVersion>2.1</mavenJarPluginVersion>
@@ -38,11 +37,6 @@
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
 			<version>${mysql.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-classic</artifactId>
-			<version>${logback.version}</version>
 		</dependency>
 	</dependencies>
 	<build>

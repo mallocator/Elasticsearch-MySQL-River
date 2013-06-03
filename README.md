@@ -1,7 +1,10 @@
 Elasticsearch-MySQL-River
 =========================
 
-An Elasticsearch river modelled to work like the Solr MySQL import feature
+An Elasticsearch river modeled to work like the Solr MySQL import feature
+
+There is an alternative plugin for jdbc connections which you could also try at:
+https://github.com/jprante/elasticsearch-river-jdbc
 
 # Building
 
@@ -13,7 +16,7 @@ Just copy the .zip file on the elasticsearch server should be using the plugin a
 
 An Exmaple how one would call the plugin script:
 
-	/my/elasticsearch/bin/plugin -install /path/to/plugin/river-mysql.zip
+	/my/elasticsearch/bin/plugin install river-mysql -url file:///path/to/plugin/river-mysql.zip
 
 The plugin needs to be installed on all nodes of the ES cluster.
 

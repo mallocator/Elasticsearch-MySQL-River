@@ -10,7 +10,7 @@ import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.elasticsearch.ElasticSearchException;
+import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.ExceptionsHelper;
 import org.elasticsearch.action.index.IndexRequest.OpType;
 import org.elasticsearch.action.index.IndexRequestBuilder;
@@ -27,7 +27,9 @@ import org.elasticsearch.river.RiverName;
 import org.elasticsearch.river.RiverSettings;
 
 /**
- *
+ * The class that performs the actual import.
+ * 
+ * @author Ravi Gairola (mallox@pyxzl.net)
  */
 public class MysqlRiver extends AbstractRiverComponent implements River {
 	private final Client	esClient;
@@ -79,6 +81,7 @@ public class MysqlRiver extends AbstractRiverComponent implements River {
 		return defaultValue;
 	}
 
+	@Override
 	public void start() {
 		this.logger.info("starting mysql stream");
 		try {
@@ -93,7 +96,7 @@ public class MysqlRiver extends AbstractRiverComponent implements River {
 			if (ExceptionsHelper.unwrapCause(e) instanceof IndexAlreadyExistsException) {
 				this.logger.debug("Not creating Index {} as it already exists", this.index);
 			}
-			else if (ExceptionsHelper.unwrapCause(e) instanceof ElasticSearchException) {
+			else if (ExceptionsHelper.unwrapCause(e) instanceof ElasticsearchException) {
 				this.logger.debug("Mapping {}.{} already exists and will not be created", this.index, this.type);
 			}
 			else {
@@ -111,7 +114,7 @@ public class MysqlRiver extends AbstractRiverComponent implements River {
 				.setIgnoreConflicts(true)
 				.execute()
 				.actionGet();
-		} catch (ElasticSearchException e) {
+		} catch (ElasticsearchException e) {
 			this.logger.debug("Mapping already exists for index {} and type {}", this.index, this.type);
 		}
 
@@ -121,6 +124,7 @@ public class MysqlRiver extends AbstractRiverComponent implements River {
 		}
 	}
 
+	@Override
 	public void close() {
 		this.logger.info("Closing MySQL river");
 		this.stopThread = true;
@@ -130,9 +134,9 @@ public class MysqlRiver extends AbstractRiverComponent implements River {
 	/**
 	 * Parser that asynchronously writes the data from MySQL into ElasticSearch.
 	 * 
-	 * @author Mallox
+	 * @author Ravi Gairola (mallox@pyxzl.net)
 	 */
-	private class Parser extends Thread {
+	private final class Parser extends Thread {
 		private Parser() {}
 
 		@Override
@@ -153,12 +157,14 @@ public class MysqlRiver extends AbstractRiverComponent implements River {
 				}
 				try {
 					sleep(1000);
-				} catch (InterruptedException e) {}
+				} catch (InterruptedException e) {
+					MysqlRiver.this.logger.trace("Thread sleep cycle has been interrupted", e);
+				}
 			}
 			MysqlRiver.this.logger.info("Mysql Import Thread has finished");
 		}
 
-		private void parse() throws ElasticSearchException {
+		private void parse() throws ElasticsearchException {
 			Connection con = null;
 			Statement st = null;
 			ResultSet rs = null;
@@ -233,7 +239,6 @@ public class MysqlRiver extends AbstractRiverComponent implements River {
 					if (con != null) {
 						con.close();
 					}
-
 				} catch (SQLException ex) {
 					MysqlRiver.this.logger.warn("Error closing MySQL connection properly.", ex);
 				}
